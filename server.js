@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = 'mongodb://localhost:27017/bluehour_db'; 
+const MONGO_URI = 'mongodb+srv://uswthsnah:uswatun020306@cluster0.3icuw3v.mongodb.net/?retryWrites=true&w=majority';
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Terhubung ke MongoDB!'))
