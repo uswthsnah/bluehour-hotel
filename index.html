@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blue Hour Hotel - Maintenance System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-dark: #0a1628; --primary: #1e3a8a; --primary-light: #3b82f6;
+      --accent: #c9a84c; --accent-hover: #b8942f; --success: #10b981; --warning: #f59e0b;
+      --danger: #ef4444; --bg-light: #f1f5f9; --text-dark: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+    .hidden { display: none !important; }
+    .playfair { font-family: 'Playfair Display', serif; }
+
+    .landing-page { background: var(--white); }
+    
+    .top-nav { position: fixed; top: 0; width: 100%; z-index: 100; padding: 20px 60px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
+    .top-nav.scrolled { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 15px 60px; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--white); text-decoration: none; transition: color 0.3s; }
+    .top-nav.scrolled .nav-logo { color: var(--primary-dark); }
+    .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; margin-left: 35px; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+    .nav-links a:hover { color: var(--accent); }
+    .top-nav.scrolled .nav-links a { color: var(--text-dark); }
+    .btn-nav-maintenance { border: 1px solid var(--accent); color: var(--accent) !important; padding: 8px 20px !important; }
+    .btn-nav-maintenance:hover { background: var(--accent) !important; color: var(--primary-dark) !important; }
+
+    .hero { height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+    .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; transform: scale(1.1); animation: zoomIn 10s linear infinite; }
+    @keyframes zoomIn { 0% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(10,22,40,0.5), rgba(10,22,40,0.8)); }
+    .hero-content { position: relative; z-index: 2; color: white; max-width: 800px; padding: 0 20px; }
+    .hero-subtitle { font-size: 1rem; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; font-weight: 500; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: 4.5rem; font-weight: 700; line-height: 1.1; margin-bottom: 25px; font-style: italic; }
+    .hero-p { font-size: 1.1rem; line-height: 1.8; color: rgba(255,255,255,0.8); font-weight: 300; margin-bottom: 40px; }
+    .btn-hero { display: inline-block; padding: 18px 45px; background: var(--accent); color: var(--primary-dark); text-decoration: none; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; }
+    .btn-hero:hover { background: var(--white); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+    .about-section { padding: 120px 60px; background: var(--white); display: flex; align-items: center; gap: 80px; }
+    .about-img { flex: 1; height: 500px; overflow: hidden; box-shadow: 20px 20px 0 rgba(201, 168, 76, 0.2); }
+    .about-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .about-img:hover img { transform: scale(1.05); }
+    .about-text { flex: 1; }
+    .about-text h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--primary-dark); margin-bottom: 20px; font-weight: 600; }
+    .about-text p { color: var(--text-muted); line-height: 1.9; font-size: 1rem; margin-bottom: 20px; text-align: justify; }
+
+    .landing-footer { background: var(--primary-dark); color: white; padding: 60px; text-align: center; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--accent); margin-bottom: 20px; }
+    .footer-info { color: #94a3b8; font-size: 0.9rem; line-height: 1.8; }
+    .footer-bottom { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.8rem; color: #64748b; }
+
+    .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 22, 40, 0.7); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px); }
+    .modal-bg.show { display: flex; }
+    .modal-box { background: white; width: 90%; max-width: 550px; box-shadow: 0 25px 60px rgba(0,0,0,0.3); animation: slideUp 0.4s ease; overflow: hidden; position: relative; }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-gold-top { height: 5px; background: linear-gradient(90deg, var(--accent) 0%, #e5c97b 100%); }
+    .modal-head { padding: 30px 40px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+    .modal-head h3 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.6rem; color: var(--primary-dark); }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+    .modal-body { padding: 20px 40px 40px; }
+    .m-form-group { margin-bottom: 20px; }
+    .m-form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; }
+    .m-form-control { width: 100%; padding: 14px 16px; border: 1px solid var(--border); font-size: 1rem; font-family: 'Inter', sans-serif; transition: 0.3s; background: #fafafa; }
+    .m-form-control:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+    textarea.m-form-control { resize: vertical; min-height: 100px; }
+    .btn-submit-gold { width: 100%; padding: 16px; background: var(--accent); color: var(--primary-dark); border: none; font-size: 1rem; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+    .btn-submit-gold:hover { background: var(--accent-hover); }
+
+    .login-page { min-height: 100vh; background: var(--bg-light); display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { background: white; padding: 60px 50px; width: 100%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); text-align: center; position: relative; overflow: hidden; }
+    .login-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--accent) 0%, #e5c97b 100%); }
+    .login-box h2 { font-family: 'Playfair Display', serif; color: var(--primary-dark); margin-bottom: 5px; font-size: 1.8rem; margin-top: 20px; }
+    .login-box p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px; }
+    .login-box .form-group { text-align: left; margin-bottom: 20px; }
+    .login-box label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .login-box input { width: 100%; padding: 14px; border: 1px solid var(--border); font-size: 1rem; transition: 0.3s; background: #fafafa; }
+    .login-box input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+    .btn-login { width: 100%; padding: 16px; background: var(--primary-dark); color: white; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+    .btn-login:hover { background: var(--primary); }
+    .back-guest { display: block; margin-top: 30px; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .back-guest:hover { color: var(--primary); }
+    .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 5px; display: none; }
+
+    .dashboard-layout { display: flex; height: 100vh; overflow: hidden; }
+    .dash-sidebar { width: 260px; background: var(--primary-dark); color: white; display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+    .dash-brand { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .dash-brand h3 { font-family: 'Playfair Display', serif; color: var(--accent); font-size: 1.3rem; line-height: 1.2; }
+    .dash-brand small { color: rgba(255,255,255,0.4); font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; }
+    .dash-nav { padding: 20px 0; flex: 1; }
+    .dash-nav a { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: 0.2s; border-left: 3px solid transparent; font-weight: 500; cursor: pointer; }
+    .dash-nav a:hover, .dash-nav a.active { background: rgba(255,255,255,0.05); color: white; border-left-color: var(--accent); }
+    .dash-nav a i { width: 20px; text-align: center; }
+    .online-widget { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .online-widget h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-bottom: 15px; }
+    .online-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .online-avatar-card { text-align: center; transition: 0.2s; padding: 8px 5px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+    .online-avatar-card:hover { background: rgba(255,255,255,0.08); }
+    .avatar-circle { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: white; position: relative; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); }
+    .avatar-circle::after { content: ''; position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; background: var(--success); border-radius: 50%; border: 2px solid var(--primary-dark); }
+    .online-avatar-card span { font-size: 0.7rem; color: #94a3b8; display: block; }
+    .no-online { grid-column: span 2; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); padding: 10px; }
+
+    .dash-main { flex: 1; display: flex; flex-direction: column; background: var(--bg-light); }
+    .dash-topbar { background: white; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .dash-topbar-left span { font-weight: 600; color: var(--text-dark); text-transform: capitalize; }
+    .dash-topbar-right { display: flex; align-items: center; gap: 20px; font-size: 0.9rem; color: var(--text-muted); }
+    .dash-topbar-right strong { color: var(--text-dark); }
+    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 8px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-logout:hover { background: #fef2f2; }
+
+    .dash-body { padding: 30px; flex: 1; overflow-y: auto; }
+    .dash-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+    .dash-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); }
+    .dash-tab { padding: 12px 25px; background: none; border: none; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; }
+    .dash-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .btn-dash { padding: 12px 24px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: 0.2s; background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2); }
+    .btn-dash:hover { background: var(--primary-light); }
+
+    .history-search-bar { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .filter-select { padding: 12px 15px; border: 1px solid var(--border); font-size: 0.95rem; background: white; }
+    .filter-select:focus { outline: none; border-color: var(--primary); }
+
+    .dash-table-card { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 16px 20px; background: #f8fafc; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    td { padding: 16px 20px; font-size: 0.9rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr.data-row { cursor: pointer; transition: background 0.2s; }
+    tr.data-row:hover { background: #fafbfe; }
+    .chevron-icon { transition: transform 0.2s; font-size: 0.8rem; margin-right: 8px; color: var(--text-muted); }
+    .chevron-icon.rotated { transform: rotate(90deg); }
+    tr.detail-row td { padding: 0; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+    .detail-content { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; }
+    .detail-content.show { max-height: 300px; padding: 20px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .detail-grid div label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;}
+    .detail-grid div p { font-weight: 600; font-size: 0.9rem; }
+    .info-box-inline { padding: 12px; font-size: 0.85rem; line-height: 1.5; }
+    .info-box-blue { background: #eff6ff; border-left: 4px solid var(--primary); color: var(--primary-dark); margin-bottom: 10px; }
+    .info-box-green { background: #ecfdf5; border-left: 4px solid var(--success); color: #065f46; }
+
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-new { background: #eff6ff; color: #2563eb; }
+    .badge-progress { background: #fffbeb; color: #d97706; }
+    .badge-finish { background: #ecfdf5; color: #059669; }
+    .act-btn { background: none; border: none; cursor: pointer; padding: 6px 8px; font-size: 0.95rem; transition: 0.2s; }
+    .act-btn.success { color: var(--success); } .act-btn.success:hover { background: #ecfdf5; }
+
+    .modal-admin-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(4px); }
+    .modal-admin-bg.show { display: flex; }
+    .modal-admin-box { background: white; width: 90%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: popIn 0.3s ease; overflow: hidden; }
+    @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-admin-head { padding: 20px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+    .modal-admin-head h3 { font-weight: 700; color: var(--primary-dark); }
+    .modal-admin-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+    .modal-admin-body { padding: 25px; }
+    .modal-admin-foot { padding: 15px 25px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; }
+    .m-btn { padding: 10px 20px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer; font-size: 0.9rem; color: var(--text-dark); transition: 0.2s; }
+    .m-btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .classic-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; display: none; justify-content: center; align-items: center; }
+    .classic-bg.show { display: flex; }
+    .classic-dialog { background: #f0f0f0; border: 1px solid #999; box-shadow: 0 5px 15px rgba(0,0,0,0.4); width: 420px; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .classic-header { background: #fff; padding: 10px 15px; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #333; }
+    .classic-header i { color: var(--primary); }
+    .classic-body { padding: 20px; font-size: 0.9rem; color: #222; }
+    .classic-body input { width: 100%; padding: 6px 8px; border: 1px solid #abadb3; margin-top: 10px; font-family: inherit; font-size: 0.9rem; }
+    .classic-body input:focus { outline: 1px solid #0078d7; }
+    .classic-footer { padding: 10px 15px; display: flex; justify-content: flex-end; gap: 10px; background: #f0f0f0; border-top: 1px solid #ddd; }
+    .classic-btn { padding: 5px 20px; border: 1px solid #abadb3; background: #e1e1e1; font-family: inherit; font-size: 0.85rem; cursor: pointer; color: #000; }
+    .classic-btn-primary { background: #0078d7; color: white; border-color: #005a9e; }
+    .classic-btn-primary:hover { background: #006cbe; }
+  </style>
+</head>
+<body>
+
+  <div id="viewLanding" class="landing-page">
+    <nav class="top-nav" id="mainNav">
+      <a href="#" class="nav-logo">Blue Hour Hotel</a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#" class="btn-nav-maintenance" onclick="openGuestModal()">Report Issue</a>
+        <a href="#" onclick="showView('viewLogin'); return false;">Staff Login</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-subtitle">5-Star Luxury Experience</div>
+        <h1 class="hero-title playfair">Blue Hour Hotel</h1>
+        <p class="hero-p">Where the sky meets the horizon in perfect harmony. Experience unparalleled comfort, bespoke service, and timeless elegance in the heart of the city.</p>
+        <a href="#" class="btn-hero" onclick="openGuestModal()">Submit Maintenance Request</a>
+      </div>
+    </section>
+
+    <section id="about" class="about-section">
+      <div class="about-img">
+        <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=2070&auto=format&fit=crop" alt="Luxury Hotel Interior">
+      </div>
+      <div class="about-text">
+        <h2 class="playfair">The Essence of<br>Blue Hour</h2>
+        <p>In photography and art, the "blue hour" is the period of twilight each morning and evening when the sun is at a significant distance below the horizon. During this fleeting moment, the residual, indirect sunlight takes on a predominantly blue shade, casting a profound, calming, and deeply romantic glow over the world.</p>
+        <p>At Blue Hour Hotel, we have captured this exact essence. We are not just a place to stay; we are a sanctuary of tranquility amidst the bustling metropolis. Every architectural curve, every ambient light, and every bespoke service is meticulously crafted to evoke the serene, sophisticated feeling of that magical evening transition.</p>
+        <p>Our commitment to excellence means that even the smallest details—ensuring your room is flawlessly maintained, responding to your needs before you even ask—are handled with the quiet dedication of a five-star legacy. Welcome to your serene escape. Welcome to the Blue Hour.</p>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <h3 class="footer-logo playfair">Blue Hour Hotel</h3>
+      <div class="footer-info">
+        Jl. Sudirman No. 123, Jakarta Pusat, 10220<br>
+        Tel: +62 21 5555 1234 | Email: info@bluehourhotel.com
+      </div>
+      <div class="footer-bottom">
+        &copy; 2024 Blue Hour Hotel. All Rights Reserved.
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal-bg" id="guestModal">
+    <div class="modal-box">
+      <div class="modal-gold-top"></div>
+      <div class="modal-head">
+        <h3 class="playfair">Maintenance Request</h3>
+        <button class="modal-close" onclick="closeGuestModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="guestForm" onsubmit="submitGuestComplaint(event)">
+          <div class="m-form-group"><label>Room Number</label><input type="text" name="gRoom" class="m-form-control" id="gRoom" placeholder="e.g., 801, 1805" required></div>
+          <div class="m-form-group"><label>Guest Name</label><input type="text" name="gName" class="m-form-control" id="gName" placeholder="e.g., John Doe" required></div>
+          <div class="m-form-group"><label>Requested Item</label>
+            <select name="gItem" class="m-form-control" id="gItem" required>
+              <option value="">-- Select Issue --</option>
+              <option value="AC Problem">AC Problem</option>
+              <option value="Jetspray Problem">Jetspray Problem</option>
+              <option value="Minibar Problem">Minibar Problem</option>
+              <option value="Vincard Problem">Vincard Problem</option>
+              <option value="Lighting Issue">Lighting Issue</option>
+              <option value="Water Leak">Water Leak</option>
+            </select>
+          </div>
+          <div class="m-form-group"><label>Additional Note</label><textarea name="gNote" class="m-form-control" id="gNote" placeholder="Describe the issue briefly..."></textarea></div>
+          <button type="submit" class="btn-submit-gold" id="btnSubmitGuest">Send Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="viewLogin" class="login-page hidden">
+    <div class="login-box">
+      <h2 class="playfair">Staff Portal</h2>
+      <p>Sign in to handle guest requests</p>
+      <form onsubmit="doLogin(event)">
+        <div class="form-group"><label>Official Email</label><input type="text" id="lUser" name="lUser" placeholder="e.g., operator@bluehour.com" required></div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="lPass" name="lPass" placeholder="Enter department password" required>
+          <p class="error-msg" id="loginError">Invalid username or password!</p>
+        </div>
+        <button type="submit" class="btn-login">Sign In</button>
+      </form>
+      <a href="#" class="back-guest" onclick="showView('viewLanding'); return false;"><i class="fas fa-arrow-left"></i> Back to Website</a>
+    </div>
+  </div>
+
+  <div id="viewDashboard" class="dashboard-layout hidden">
+    <aside class="dash-sidebar">
+      <div class="dash-brand">
+        <h3 class="playfair">Blue Hour Hotel</h3>
+        <small>Maintenance System</small>
+      </div>
+      <nav class="dash-nav" id="dashNavMenu">
+        <a class="active" onclick="loadDashView('dashboard', this)"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a onclick="loadDashView('history', this)"><i class="fas fa-history"></i> History</a>
+      </nav>
+      <div class="online-widget">
+        <h4>Online Staffs</h4>
+        <div class="online-grid" id="onlineGrid"><div class="no-online">No one is online</div></div>
+      </div>
+    </aside>
+    <main class="dash-main">
+      <header class="dash-topbar">
+        <div class="dash-topbar-left"><span id="pageTitle">Dashboard</span></div>
+        <div class="dash-topbar-right">
+          <span>Welcome, <strong id="staffDeptDisplay">Department</strong></span>
+          <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </header>
+      <div class="dash-body" id="dashContent"></div>
+    </main>
+  </div>
+
+  <div class="modal-admin-bg" id="modalCreateAdmin">
+    <div class="modal-admin-box">
+      <div class="modal-admin-head"><h3>Manual Request (Staff)</h3><button class="modal-admin-close" onclick="closeAdminModal('modalCreateAdmin')">&times;</button></div>
+      <div class="modal-admin-body">
+        <div class="m-form-group"><label>Room Number</label><input type="text" class="m-form-control" id="aLoc" placeholder="e.g., 1001"></div>
+        <div class="m-form-group"><label>Guest Name</label><input type="text" class="m-form-control" id="aGuest"></div>
+        <div class="m-form-group"><label>Requested Item</label>
+          <select class="m-form-control" id="aItem"><option value="AC Problem">AC Problem</option><option value="Jetspray Problem">Jetspray Problem</option><option value="Lighting Issue">Lighting Issue</option></select>
+        </div>
+        <div class="m-form-group"><label>Note</label><input type="text" class="m-form-control" id="aNote"></div>
+      </div>
+      <div class="modal-admin-foot">
+        <button class="m-btn" onclick="closeAdminModal('modalCreateAdmin')">Cancel</button>
+        <button class="m-btn m-btn-primary" onclick="saveAdminReq()">Save Request</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="classic-bg" id="classicFinishPopup">
+    <div class="classic-dialog">
+      <div class="classic-header"><i class="fas fa-info-circle"></i><span>bluehour.com says</span></div>
+      <div class="classic-body">
+        <div>Finish Note (Optional)</div>
+        <input type="text" id="classicFinishInput" placeholder="e.g. Done, replaced the pipe">
+      </div>
+      <div class="classic-footer">
+        <button class="classic-btn" onclick="closeClassicPopup()">Cancel</button>
+        <button class="classic-btn classic-btn-primary" onclick="confirmClassicFinish()">OK</button>
+      </div>
+    </div>
+  </div>
+
+     <script>
+    const API_URL = 'http://localhost:3000/api/data';
+    const API_SAVE = 'http://localhost:3000/api/save'; 
+    const ONLINE_KEY = 'blue_hour_online_v7'; 
+    
+    const STAFFS = [ 
+      {user: 'operator@bluehour.com', pass: 'operator', dept: 'Maintenance'} 
+    ];
+    const ITEMS = ["AC Problem", "Jetspray Problem", "Minibar Problem", "Vincard Problem", "Lighting Issue", "Water Leak"];
+    
+    let currentView = 'landing', currentTab = 'new', activeId = null, loggedInUser = null;
+    let myTabId = 'TAB_' + Math.random().toString(36).substring(2, 9);
+    let dashboardInterval;
+
+    window.addEventListener('scroll', () => { const nav = document.getElementById('mainNav'); if(window.scrollY > 50) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); });
+
+    function getCurrentTime() { const n = new Date(); return `${n.getDate()}-${n.toLocaleString('en', {month:'short'})}-${n.getFullYear()} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
+
+    // DIPERBAIKI: Sekarang mendukung lantai 8 sampai 20+ (Sebelumnya error di atas 1020)
+    function getFloor(roomStr) {
+      let room = String(roomStr).trim(); 
+      if(isNaN(room) || room === '') return null; 
+      let num = parseInt(room, 10);
+      // Logika baru: ambil 1 atau 2 digit pertama sebagai nomor lantai
+      let floorStr = room.length >= 3 ? room.substring(0, room.length - 2) : room;
+      let floor = parseInt(floorStr, 10);
+      return (floor >= 8 && floor <= 99) ? floor : null; 
+    }
+
+    // DIPERBAIKI: Menghitung ID berdasarkan awalan lantai (M8, M10, M18), bukan berdasarkan properti "floor"
+    function createNewId(loc, db) {
+      let floor = getFloor(loc); 
+      if(!floor) return "REQ-ERR"; 
+      let prefix = `M${floor}`;
+      
+      // Hitung jumlah data yang sudah ada dengan prefix ini
+      let count = db.filter(d => d.id && d.id.startsWith(prefix)).length;
+      
+      // Cari ID terbesar untuk menghindari duplikat jika ada data yang dihapus
+      let maxNum = 0;
+      db.forEach(d => {
+          if(d.id && d.id.startsWith(prefix)) {
+              let numStr = d.id.substring(prefix.length + 1); // Mengambil angka setelah "M8-"
+              let num = parseInt(numStr, 10);
+              if(num > maxNum) maxNum = num;
+          }
+      });
+
+      return `${prefix}-${String(maxNum + 1).padStart(3, '0')}`;
+    }
+
+    // DIPERBAIKI: Filter tidak lagi terlalu ketat & memaksa konversi "floor" ke Number
+    async function getDB() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        // 1. Bersihkan data rusak (Hanya menolak yang tidak punya ID)
+        let cleanData = data.filter(item => {
+            return item && item.id && item.id !== 'undefined' && item.id !== 'null';
+        });
+
+        // 2. Normalisasi data (Pastikan floor selalu berupa Number)
+        cleanData.forEach(item => {
+            if (item.floor === undefined || item.floor === null || isNaN(item.floor)) {
+                item.floor = getFloor(item.loc);
+            } else {
+                item.floor = Number(item.floor);
+            }
+        });
+
+        // 3. Kirim data bersih ke database jika ada yang rusak
+        if (cleanData.length !== data.length) {
+            console.log("[SYSTEM] Menemukan data rusak! Memperbaiki database...");
+            await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(cleanData) });
+        }
+
+        // 4. Jika database benar-benar kosong, isi data awal
+        if (!cleanData || cleanData.length === 0) {
+          const now = getCurrentTime(); 
+          const init = [
+            { id: "M8-001", loc: "805", floor: 8, guest: "MR. SMITH", item: "Jetspray Problem", note: "Cannot be turned off.", status: "New", staff: "-", time: now }, 
+            { id: "M10-001", loc: "1002", floor: 10, guest: "MS. JOHNSON", item: "AC Problem", note: "AC is not cold.", status: "New", staff: "-", time: now } 
+          ]; 
+          await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(init) });
+          return init; 
+        }
+        return cleanData;
+      } catch (error) {
+        console.error("Gagal mengambil data dari MongoDB:", error);
+        return [];
+      }
+    }
+
+    async function saveItem(itemData) {
+        try {
+            await fetch(API_SAVE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(itemData)
+            });
+        } catch (error) {
+            console.error("Gagal menyimpan item:", error);
+        }
+    }
+
+    function getOnlineList() { let list = JSON.parse(localStorage.getItem(ONLINE_KEY) || '[]'); let now = Date.now(); let cleanList = list.filter(item => (now - item.lastSeen) < 5000); if(cleanList.length !== list.length) localStorage.setItem(ONLINE_KEY, JSON.stringify(cleanList)); return cleanList; }
+    function iAmOnline() { if(!loggedInUser) return; let list = getOnlineList(); let myIndex = list.findIndex(i => i.tabId === myTabId); if(myIndex >= 0) { list[myIndex].lastSeen = Date.now(); } else { list.push({ tabId: myTabId, dept: loggedInUser.dept, lastSeen: Date.now() }); } localStorage.setItem(ONLINE_KEY, JSON.stringify(list)); renderOnlineUsers(); }
+    function iAmOffline() { let list = getOnlineList().filter(i => i.tabId !== myTabId); localStorage.setItem(ONLINE_KEY, JSON.stringify(list)); renderOnlineUsers(); }
+    function renderOnlineUsers() { const list = getOnlineList(); const grid = document.getElementById('onlineGrid'); if(!grid) return; if(list.length === 0) { grid.innerHTML = '<div class="no-online">No one is online</div>'; return; } grid.innerHTML = list.map(s => `<div class="online-avatar-card"><div class="avatar-circle">${s.dept.substring(0, 2).toUpperCase()}</div><span>${s.dept}</span></div>`).join(''); }
+    let onlineInterval;
+    function startOnlineHeartbeat() { iAmOnline(); onlineInterval = setInterval(iAmOnline, 2000); }
+    function stopOnlineHeartbeat() { clearInterval(onlineInterval); iAmOffline(); }
+    
+    window.addEventListener('storage', (e) => { if(e.key === ONLINE_KEY) renderOnlineUsers(); });
+
+    function showView(id) { document.querySelectorAll('.landing-page, .login-page, .dashboard-layout').forEach(el => el.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); window.scrollTo(0,0); }
+    function openGuestModal() { document.getElementById('guestModal').classList.add('show'); }
+    function closeGuestModal() { document.getElementById('guestModal').classList.remove('show'); }
+
+    async function submitGuestComplaint(e) {
+      e.preventDefault(); 
+      const btn = document.getElementById('btnSubmitGuest');
+      btn.disabled = true; btn.innerText = "Saving to Database...";
+      
+      let loc = document.getElementById('gRoom').value;
+      let floor = getFloor(loc);
+      if(!floor) { alert("Invalid room number. (Must be 3-4 digits like 801 or 1805)"); btn.disabled = false; btn.innerText = "Send Request"; return; }
+      
+      let db = await getDB(); 
+      let newId = createNewId(loc, db);
+      
+      const newItem = { 
+        id: newId, loc: loc, floor: floor, 
+        guest: document.getElementById('gName').value.toUpperCase(), 
+        item: document.getElementById('gItem').value, 
+        note: document.getElementById('gNote').value || "No additional note.", 
+        status: "New", staff: "-", time: getCurrentTime() 
+      };
+      
+      await saveItem(newItem); 
+      
+      alert("Thank you! Request submitted to MongoDB."); 
+      closeGuestModal(); 
+      document.getElementById('guestForm').reset();
+      btn.disabled = false; btn.innerText = "Send Request";
+    }
+
+    async function doLogin(e) {
+      e.preventDefault();
+      const staff = STAFFS.find(s => s.user === document.getElementById('lUser').value && s.pass === document.getElementById('lPass').value);
+      if(staff) {
+        loggedInUser = staff; document.getElementById('staffDeptDisplay').innerText = staff.dept + " Department"; document.getElementById('loginError').style.display = 'none';
+        showView('viewDashboard'); currentTab = 'new'; currentView = 'dashboard'; document.getElementById('pageTitle').innerText = 'Dashboard';
+        document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active')); document.querySelector('.dash-nav a').classList.add('active');
+        await renderDashboardView(document.getElementById('dashContent')); 
+        startOnlineHeartbeat(); 
+        startDashboardAutoRefresh(); 
+      } else { document.getElementById('loginError').style.display = 'block'; }
+    }
+
+    function doLogout() { 
+      stopOnlineHeartbeat(); 
+      stopDashboardAutoRefresh(); 
+      loggedInUser = null; 
+      document.getElementById('lUser').value=''; 
+      document.getElementById('lPass').value=''; 
+      showView('viewLanding'); 
+    }
+
+    function startDashboardAutoRefresh() {
+      stopDashboardAutoRefresh();
+      dashboardInterval = setInterval(async () => {
+          if (currentView === 'dashboard' || currentView === 'history') {
+              await renderTable(); 
+              if(currentView === 'history') await applyHistoryFilter();
+          }
+      }, 2000); 
+    }
+
+    function stopDashboardAutoRefresh() {
+      if (dashboardInterval) {
+          clearInterval(dashboardInterval);
+          dashboardInterval = null;
+      }
+    }
+
+    async function loadDashView(view) { 
+      currentView = view; 
+      document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active')); 
+      event.target.closest('a').classList.add('active'); 
+      document.getElementById('pageTitle').innerText = view === 'history' ? 'History' : 'Dashboard'; 
+      await renderMainContent(); 
+      startDashboardAutoRefresh();
+    }
+
+    async function renderMainContent() { 
+      const c = document.getElementById('dashContent'); 
+      if(currentView === 'history') await renderHistoryView(c); 
+      else await renderDashboardView(c); 
+    }
+
+    async function renderHistoryView(container) {
+      container.innerHTML = `<div class="history-search-bar"><select class="filter-select" id="historyMainFilter" onchange="onMainFilterChange()"><option value="all">Show All</option><option value="loc">Filter by Location</option><option value="item">Filter by Item</option></select><select class="filter-select hidden" id="historySubFilter" onchange="applyHistoryFilter()"></select></div><div class="dash-table-card"><table><thead><tr><th>ID</th><th>Location</th><th>Guest Name</th><th>Requested Item</th><th>Status</th><th>Handled By</th></tr></thead><tbody id="historyTableBody"></tbody></table></div>`;
+      await applyHistoryFilter();
+    }
+    function onMainFilterChange() { 
+      const v = document.getElementById('historyMainFilter').value; 
+      const s = document.getElementById('historySubFilter'); 
+      s.innerHTML = ''; 
+      if(v === 'loc') { 
+        let o = '<option value="all">All Floors</option>'; 
+        for(let i=8;i<=20;i++) o += `<option value="M${i}">M${i} (Floor ${i})</option>`; 
+        s.innerHTML = o; s.classList.remove('hidden'); 
+      } else if(v === 'item') { 
+        let o = '<option value="all">All Items</option>'; 
+        ITEMS.forEach(i => o += `<option value="${i}">${i}</option>`); 
+        s.innerHTML = o; s.classList.remove('hidden'); 
+      } else { 
+        s.classList.add('hidden'); 
+      } 
+      applyHistoryFilter(); 
+    }
+
+    async function applyHistoryFilter() { 
+      const m = document.getElementById('historyMainFilter'); 
+      const sv = document.getElementById('historySubFilter');
+      if(!m || !sv) return;
+      
+      let db = (await getDB()).filter(d => d.status === 'Finish'), f = db; 
+      if(m.value === 'loc' && sv.value !== 'all') f = db.filter(d => d.id.startsWith(sv.value)); 
+      else if(m.value === 'item' && sv.value !== 'all') f = db.filter(d => d.item === sv.value); 
+      
+      let h = ''; 
+      if(f.length === 0) { 
+        h = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">No history records found.</td></tr>`; 
+      } else { 
+        f.forEach(i => { 
+          h += `<tr class="data-row" onclick="toggleDetail('hist-${i.id}')"><td><i class="fas fa-chevron-right chevron-icon" id="chev-hist-${i.id}"></i> ${i.id}</td><td>${i.loc}</td><td>${i.guest}</td><td>${i.item}</td><td><span class="badge badge-finish">Finish</span></td><td>${i.staff}</td></tr><tr class="detail-row hidden" id="drow-hist-${i.id}"><td colspan="6"><div class="detail-content" id="dcont-hist-${i.id}">${generateDetailHTML(i)}</div></td></tr>`; 
+        }); 
+      } 
+      document.getElementById('historyTableBody').innerHTML = h; 
+    }
+
+    async function renderDashboardView(container) { 
+      container.innerHTML = `<div class="dash-actions"><div class="dash-tabs"><button class="dash-tab ${currentTab==='new'?'active':''}" onclick="switchTab('new')">New Requests</button><button class="dash-tab ${currentTab==='ongoing'?'active':''}" onclick="switchTab('ongoing')">Ongoing</button></div><button class="btn-dash" onclick="document.getElementById('modalCreateAdmin').classList.add('show')"><i class="fas fa-plus"></i> Create Manual Request</button></div><div class="dash-table-card"><table><thead><tr><th>ID</th><th>Location</th><th>Guest Name</th><th>Requested Item</th><th>Status</th><th>Handled By</th><th>Action</th></tr></thead><tbody id="tableBody"></tbody></table></div>`; 
+      await renderTable(); 
+    }
+
+    function generateDetailHTML(item) { 
+      return `<div class="detail-grid"><div><label>Ticket ID</label><p>${item.id}</p></div><div><label>Requested Time</label><p>${item.time || '-'}</p></div><div><label>Location</label><p>${item.loc}</p></div><div><label>Guest Name</label><p>${item.guest}</p></div></div><div class="info-box-inline info-box-blue"><strong>Item & Issue:</strong><br>${item.item} - ${item.note}</div>${item.finishNote ? `<div class="info-box-green"><strong>Finish Note:</strong><br>${item.finishNote}</div>` : ''}`; 
+    }
+
+    function toggleDetail(id) { 
+      const r = document.getElementById(`drow-${id}`), c = document.getElementById(`dcont-${id}`), ch = document.getElementById(`chev-${id}`); 
+      if(!r) return; 
+      document.querySelectorAll('.detail-row').forEach(el => { if(el.id !== `drow-${id}`) el.classList.add('hidden'); }); 
+      document.querySelectorAll('.detail-content').forEach(el => { if(el.id !== `dcont-${id}`) el.classList.remove('show'); }); 
+      document.querySelectorAll('.chevron-icon').forEach(el => { if(el.id !== `chev-${id}`) el.classList.remove('rotated'); }); 
+      if(r.classList.contains('hidden')) { r.classList.remove('hidden'); c.classList.add('show'); ch.classList.add('rotated'); } else { r.classList.add('hidden'); c.classList.remove('show'); ch.classList.remove('rotated'); } 
+    }
+
+    async function switchTab(tab) { 
+      currentTab = tab; 
+      document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active')); 
+      event.target.classList.add('active'); 
+      await renderTable(); 
+    }
+
+    async function renderTable() { 
+      const tbody = document.getElementById('tableBody');
+      if(!tbody) return;
+
+      let db = await getDB(); 
+      let f = currentTab === 'new' ? db.filter(d => d.status === 'New') : db.filter(d => d.status === 'Progress'), h = ''; 
+      
+      if(f.length === 0) { 
+        h = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">No requests found.</td></tr>`; 
+      } else { 
+        f.forEach(i => { 
+          let b = i.status === 'New' ? 'badge-new' : 'badge-progress', a = ''; 
+          
+          if(i.status === 'New') { 
+            a = `<button class="act-btn success" title="Take Job" onclick="event.stopPropagation(); takeJob('${i.id}')"><i class="fas fa-hand-pointer"></i></button>`; 
+          } else if(i.status === 'Progress') { 
+            a = `<button class="act-btn success" title="Finish Job" onclick="event.stopPropagation(); openClassicFinish('${i.id}')"><i class="fas fa-check-circle"></i></button>`; 
+          } 
+          
+          h += `<tr class="data-row" onclick="toggleDetail('dash-${i.id}')"><td><i class="fas fa-chevron-right chevron-icon" id="chev-dash-${i.id}"></i> ${i.id}</td><td>${i.loc}</td><td>${i.guest}</td><td>${i.item}</td><td><span class="badge ${b}">${i.status}</span></td><td>${i.staff}</td><td>${a}</td></tr><tr class="detail-row hidden" id="drow-dash-${i.id}"><td colspan="7"><div class="detail-content" id="dcont-dash-${i.id}">${generateDetailHTML(i)}</div></td></tr>`; 
+        }); 
+      } 
+      tbody.innerHTML = h; 
+    }
+
+    async function takeJob(id) { 
+      if(!confirm("Take this request?")) return; 
+      let db = await getDB(); 
+      let i = db.findIndex(d => d.id === id); 
+      if(i !== -1) { 
+        db[i].status = "Progress"; 
+        db[i].staff = loggedInUser.dept; 
+        await saveItem(db[i]); 
+        await renderTable(); 
+      } 
+    }
+
+    function openClassicFinish(id) { 
+      activeId = id; 
+      document.getElementById('classicFinishInput').value = ''; 
+      document.getElementById('classicFinishPopup').classList.add('show'); 
+    }
+    
+    function closeClassicPopup() { 
+      document.getElementById('classicFinishPopup').classList.remove('show'); 
+    }
+    
+    async function confirmClassicFinish() { 
+      let db = await getDB(); 
+      let i = db.findIndex(d => d.id === activeId); 
+      if(i !== -1) { 
+        db[i].status = "Finish"; 
+        db[i].finishNote = document.getElementById('classicFinishInput').value; 
+        await saveItem(db[i]); 
+        closeClassicPopup(); 
+        await renderTable(); 
+      } 
+    }
+
+    function closeAdminModal(id) { 
+      document.getElementById(id).classList.remove('show'); 
+    }
+    
+    window.onclick = function(e) { 
+      if(e.target.classList.contains('modal-bg')) closeGuestModal(); 
+      if(e.target.classList.contains('modal-admin-bg')) e.target.classList.remove('show'); 
+      if(e.target.classList.contains('classic-bg')) closeClassicPopup(); 
+    }
+
+    async function saveAdminReq() { 
+      let loc = document.getElementById('aLoc').value; 
+      let floor = getFloor(loc);
+      if(!floor) { alert("Invalid room number."); return; } 
+      let db = await getDB(); 
+      let newId = createNewId(loc, db);
+      
+      const newItem = { 
+        id: newId, loc: loc, floor: floor, 
+        guest: document.getElementById('aGuest').value.toUpperCase(), 
+        item: document.getElementById('aItem').value, 
+        note: document.getElementById('aNote').value || "-", 
+        status: "New", staff: "-", time: getCurrentTime() 
+      }; 
+      
+      await saveItem(newItem); 
+      closeAdminModal('modalCreateAdmin'); 
+      await renderMainContent(); 
+    }
+</script>
